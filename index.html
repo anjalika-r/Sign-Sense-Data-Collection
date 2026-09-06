@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sign Sense · Data Collection</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <header>
+        <div><p class="eyebrow">AUSLAN DATA COLLECTION</p><h1>Sign Sense</h1></div>
+        <div class="session-person" id="session-person"></div>
+      </header>
+      <section class="controls" aria-label="Recording controls">
+        <label>Sign label <select id="label-select"></select></label>
+        <button id="record-button" class="record">● Start recording</button>
+        <button id="discard-button" disabled>Discard last</button>
+        <button id="export-button" class="primary" disabled>Export session as ZIP</button>
+      </section>
+      <section class="capture-grid">
+        <article class="panel live-panel"><div class="panel-heading"><h2>Live tracking</h2><span id="tracking-status">Preparing camera…</span></div><div class="video-wrap"><video id="camera" autoplay muted playsinline></video><canvas id="overlay"></canvas></div></article>
+        <article class="panel reference-panel"><div class="panel-heading"><h2>Reference sign</h2><span id="reference-label"></span></div><div id="reference-content" class="reference-content"></div></article>
+      </section>
+      <section class="bottom-grid"><article class="panel"><h2>Samples this session</h2><p class="sample-total"><strong id="total-count">0</strong> recordings</p><ul id="sample-list" class="sample-list"><li>No samples recorded yet.</li></ul></article><article class="panel"><h2>Data destination</h2><code id="destination"></code><p class="muted">Raw landmark JSON is preserved. Your approved trimmed landmarks and video are added to the ZIP.</p></article></section>
+      <dialog id="review-dialog" class="review-dialog"><div class="review-header"><div><p class="eyebrow">REVIEW RECORDING</p><h2>Choose the clip to keep</h2></div><span id="trim-readout"></span></div><video id="review-video" controls playsinline></video><div id="timeline" class="timeline" aria-label="Trim timeline"><canvas id="filmstrip" width="960" height="88"></canvas><div id="selection" class="selection"></div><button id="start-handle" class="trim-handle start" aria-label="Trim start"></button><button id="end-handle" class="trim-handle end" aria-label="Trim end"></button></div><div class="timeline-labels"><output id="trim-start-value">0.000s</output><span>Drag either handle to choose the section you want</span><output id="trim-end-value">0.000s</output></div><div class="trim-actions"><button id="preview-trim">▶ Preview my trim</button><button id="keep-recording" class="primary">Keep my trim</button><button id="reject-recording">Reject recording</button></div></dialog>
+    </main>
+    <dialog id="name-dialog"><form method="dialog" id="name-form"><p class="eyebrow">WELCOME</p><h2>Who is recording today?</h2><p>This name is used as the root folder for your exported session.</p><label>Your name <input id="recorder-name" required autocomplete="name" placeholder="e.g. Raina" /></label><button class="primary" value="continue">Start session</button></form></dialog>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/holistic/holistic.js"></script>
+    <script type="module" src="./src/app.js"></script>
+  </body>
+</html>
