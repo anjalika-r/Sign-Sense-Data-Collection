@@ -6,10 +6,11 @@ export class LandmarkBuffer {
     this.frames.push({
       hands: { left: result.leftHandLandmarks?.map(point) ?? null, right: result.rightHandLandmarks?.map(point) ?? null },
       face: result.faceLandmarks?.map(point) ?? null,
+      pose: result.poseLandmarks?.map(({ x, y, z, visibility }) => ({ x, y, z, visibility })) ?? null,
     });
   }
   toRecording({ recordingId, label, personName }) {
     const base = { recordingId, label, personName, timestamps: this.timestamps };
-    return { hands: { ...base, frames: this.frames.map(({ hands }) => hands) }, face: { ...base, frames: this.frames.map(({ face }) => face) } };
+    return { hands: { ...base, frames: this.frames.map(({ hands }) => hands) }, face: { ...base, frames: this.frames.map(({ face }) => face) }, pose: { ...base, frames: this.frames.map(({ pose }) => pose) } };
   }
 }

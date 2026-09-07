@@ -52,7 +52,7 @@ function trimRecording(recordingData, start, end) {
   const indexes = relative.map((time, index) => time >= start && time <= end ? index : -1).filter((index) => index >= 0);
   const first = indexes[0] ?? 0, last = indexes.at(-1) ?? recordingData.hands.frames.length - 1;
   const slice = (data) => ({ ...data, timestamps: data.timestamps.slice(first, last + 1), frames: data.frames.slice(first, last + 1), trim: { startSeconds: start, endSeconds: end, originalRawFrameCount: data.frames.length } });
-  return { hands: slice(recordingData.hands), face: slice(recordingData.face) };
+  return { hands: slice(recordingData.hands), face: slice(recordingData.face), pose: slice(recordingData.pose) };
 }
 async function renderTrimmedVideo(sourceUrl, start, end) {
   const source = document.createElement("video"); source.src = sourceUrl; source.muted = true; source.playsInline = true;
@@ -86,12 +86,12 @@ reviewVideo.addEventListener("timeupdate", () => { if (previewing && reviewVideo
 review.addEventListener("cancel", (event) => event.preventDefault());
 $("keep-recording").addEventListener("click", async () => {
   const keepButton = $("keep-recording"); keepButton.disabled = true; keepButton.textContent = "Creating trimmed clip…";
-  try { const video = await renderTrimmedVideo(reviewVideo.src, trimStart, trimEnd); recordings.push({ hands: pending.hands, face: pending.face, trimmed: trimRecording(pending, trimStart, trimEnd), video }); pending = null; previewing = false; review.close(); updateCounts(); }
+  try { const video = await renderTrimmedVideo(reviewVideo.src, trimStart, trimEnd); recordings.push({ hands: pending.hands, face: pending.face, pose: pending.pose, trimmed: trimRecording(pending, trimStart, trimEnd), video }); pending = null; previewing = false; review.close(); updateCounts(); }
   finally { keepButton.disabled = false; keepButton.textContent = "Keep my trim"; }
 });
 $("reject-recording").addEventListener("click", () => { pending = null; previewing = false; URL.revokeObjectURL(reviewVideo.src); reviewVideo.removeAttribute("src"); review.close(); });
 discardButton.addEventListener("click", () => { recordings.pop(); updateCounts(); });
 exportButton.addEventListener("click", () => exportSession(personName, recordings));
-$("name-form").addEventListener("submit", (event) => { event.preventDefault(); personName = safeName($("recorder-name").value); $("session-person").textContent = `Recorder: ${personName}`; $("destination").textContent = `/${personName}/raw/{hands,face}/ and /${personName}/trimmed/`; $("name-dialog").close(); });
+$("name-form").addEventListener("submit", (event) => { event.preventDefault(); personName = safeName($("recorder-name").value); $("session-person").textContent = `Recorder: ${personName}`; $("destination").textContent = `/${personName}/raw/{hands,face,pose}/ and /${personName}/trimmed/`; $("name-dialog").close(); });
 $("name-dialog").showModal();
 startHolistic($("camera"), $("overlay"), (result, timestamp) => { if (recording) buffer.add(result, timestamp); }).then(({ stream }) => { cameraStream = stream; $("tracking-status").textContent = "Camera and landmarks ready"; }).catch((error) => { $("tracking-status").textContent = "Camera unavailable"; console.error(error); });
