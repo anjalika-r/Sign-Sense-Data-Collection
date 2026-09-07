@@ -57,6 +57,11 @@ def resample(timestamps, frames, count=30):
 
 def process_file(hand_path, face_path, threshold, plot_id):
     hands, face = json.loads(hand_path.read_text()), json.loads(face_path.read_text())
+    pose_path = hand_path.parents[1] / "pose" / hand_path.name
+    pose = json.loads(pose_path.read_text()) if pose_path.exists() else None
+    if pose is not None and (pose["recordingId"] != hands["recordingId"] or pose["timestamps"] != hands["timestamps"] or len(pose["frames"]) != len(hands["frames"])):
+        print(f"Skipping {hands['recordingId']}: pose and hands are not index-aligned")
+        return
     if hands["timestamps"] != face["timestamps"] or len(hands["frames"]) != len(face["frames"]):
         print(f"Skipping {hands['recordingId']}: hands and face are not index-aligned")
         return
@@ -78,6 +83,10 @@ def process_file(hand_path, face_path, threshold, plot_id):
     filename = hand_path.name
     (out_root / "hands" / filename).write_text(json.dumps({**metadata, "frames": hand_frames}, indent=2))
     (out_root / "face" / filename).write_text(json.dumps({**metadata, "frames": face_frames}, indent=2))
+    if pose is not None:
+        pose_frames, _ = resample(timestamps, pose["frames"][segment])
+        (out_root / "pose").mkdir(parents=True, exist_ok=True)
+        (out_root / "pose" / filename).write_text(json.dumps({**metadata, "frames": pose_frames}, indent=2))
     if plot_id == hands["recordingId"]:
         import matplotlib.pyplot as plt
         plt.plot(smoothed); plt.axhline(threshold, color="red", linestyle="--"); plt.xlabel("Frame"); plt.ylabel("Smoothed hand motion")
