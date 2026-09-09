@@ -51,14 +51,14 @@ function renderTask() {
   $("signer-tilt-instruction").textContent = `Set laptop lid: ${task.combo.lid}. Set hand: ${task.combo.hand}.${task.combo.clipNumber === 2 ? " This is the second neutral-hand take." : ""}`;
 }
 function wait(ms) { return new Promise((resolve) => setTimeout(resolve, ms)); }
-async function countdown() { await wait(3000); }
+async function countdown() { const overlay = $("countdown-overlay"); overlay.hidden = false; for (const number of [3, 2, 1]) { overlay.textContent = number; await wait(1000); } overlay.hidden = true; }
 function recorderFor(activeStream) { const type = MediaRecorder.isTypeSupported("video/webm;codecs=vp9") ? "video/webm;codecs=vp9" : "video/webm"; const chunks = []; const recorder = new MediaRecorder(activeStream, { mimeType: type }); const done = new Promise((resolve) => { recorder.ondataavailable = (event) => event.data.size && chunks.push(event.data); recorder.onstop = () => resolve(new Blob(chunks, { type: recorder.mimeType })); }); recorder.start(); return { recorder, done }; }
 async function captureSignerClip() {
   $("signer-record").disabled = true; $("signer-overlay").hidden = true; const full = recorderFor(stream); await countdown(); signerResults = []; const clip = recorderFor(stream); const started = performance.now();
   const sampler = setInterval(() => signerResults.push(landmarkFrame(performance.now() - started)), 1000 / 30);
   await wait(3000); clearInterval(sampler); clip.recorder.stop(); full.recorder.stop();
   const [clipBlob, fullBlob] = await Promise.all([clip.done, full.done]); $("signer-overlay").hidden = false; pendingCapture = { clipBlob, fullBlob, frames: signerResults };
-  const review = $("signer-review-video"); review.src = URL.createObjectURL(clipBlob); review.hidden = false; await review.play();
+  const review = $("signer-review-video"); review.src = URL.createObjectURL(fullBlob); review.hidden = false; await review.play();
   $("signer-record").hidden = true; $("signer-keep").hidden = false; $("signer-redo").hidden = false;
 }
 async function exportSigner() {
