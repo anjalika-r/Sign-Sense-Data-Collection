@@ -2,6 +2,7 @@ import { labels, renderReference } from "./reference-clips.js";
 import { LandmarkBuffer } from "./buffer.js";
 import { startHolistic } from "./holistic.js";
 import { exportSession } from "./export.js";
+import { initOrientationModule } from "./orientation-module.js";
 
 const $ = (id) => document.getElementById(id);
 const select = $("label-select"), reference = $("reference-content"), refLabel = $("reference-label");
@@ -93,5 +94,6 @@ $("reject-recording").addEventListener("click", () => { pending = null; previewi
 discardButton.addEventListener("click", () => { recordings.pop(); updateCounts(); });
 exportButton.addEventListener("click", () => exportSession(personName, recordings));
 $("name-form").addEventListener("submit", (event) => { event.preventDefault(); personName = safeName($("recorder-name").value); $("session-person").textContent = `Recorder: ${personName}`; $("destination").textContent = `/${personName}/raw/{hands,face,pose}/ and /${personName}/trimmed/`; $("name-dialog").close(); });
-$("name-dialog").showModal();
-startHolistic($("camera"), $("overlay"), (result, timestamp) => { if (recording) buffer.add(result, timestamp); }).then(({ stream }) => { cameraStream = stream; $("tracking-status").textContent = "Camera and landmarks ready"; }).catch((error) => { $("tracking-status").textContent = "Camera unavailable"; console.error(error); });
+initOrientationModule();
+document.body.classList.add("static-only");
+$("orientation-mode-button").click();
