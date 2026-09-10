@@ -6,7 +6,7 @@ const path = require("path");
 
 const root = __dirname;
 const sessionsRoot = path.join(root, "sessions");
-const port = Number(process.env.SIGN_SENSE_PORT || 8000);
+const port = Number(process.env.SIGN_SENSE_PORT || 8001);
 const mime = { ".html": "text/html; charset=utf-8", ".js": "text/javascript; charset=utf-8", ".css": "text/css; charset=utf-8", ".json": "application/json; charset=utf-8", ".jpg": "image/jpeg", ".webm": "video/webm" };
 const safePart = (value) => /^[a-z0-9_-]+$/i.test(value) ? value : null;
 const send = (res, status, body, type = "application/json; charset=utf-8") => { res.writeHead(status, { "Content-Type": type }); res.end(body); };
